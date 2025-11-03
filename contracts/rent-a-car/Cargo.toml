@@ -1,0 +1,15 @@
+[package]
+name = "rent-a-car"
+description = "Admin sets up cars, anyone can rent a car"
+version = "0.1.0"
+authors=["Pangarake"]
+edition = "2021"
+
+[dependencies]
+soroban-sdk = "22.0.0"
+
+[dev-dependencies]
+soroban-sdk = { version = "22.0.0", features = ["testutils"] }
+
+[lib]
+crate-type = ["cdylib"]

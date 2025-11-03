@@ -1,0 +1,29 @@
+# Rust build artifacts
+target/
+**/*.rs.bk
+
+# Wasm artifacts
+*.wasm
+*.optimized.wasm
+*.wat
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Soroban / Stellar local config
+.config/
+
+# Test snapshots / local outputs
+test_snapshots/
+
+# IDE / editor
+.vscode/
+.idea/
+*.code-workspace
+
+# OS junk
+.DS_Store
+Thumbs.db
+
