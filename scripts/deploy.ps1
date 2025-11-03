@@ -1,7 +1,6 @@
 param(
   [string]$EnvFile = ".env",
   [switch]$GenerateKeysIfMissing,
-  [string]$OutEnv = ".env.contract",
   [string]$AdminSecret
 )
 
@@ -133,36 +132,29 @@ $deployOut = (stellar contract deploy `
   --token $TokenId | Out-String).Trim()
 
 $ContractId = $deployOut
-Write-Host "CONTRACT_ID  = $ContractId" -ForegroundColor Green
-
-# Save CONTRACT_ID to .env.contract
-$outLines = @()
-if (Test-Path $OutEnv) { $outLines += (Get-Content $OutEnv) }
-$outLines = $outLines | Where-Object { -not ($_.StartsWith("CONTRACT_ID=")) }
-$outLines += "CONTRACT_ID=$ContractId"
-$outLines | Set-Content $OutEnv
-Write-Host "Saved CONTRACT_ID to $OutEnv"
+Write-Host "PUBLIC_CONTRACT_ADDRESS = $ContractId" -ForegroundColor Green
 
 # Ensure .env contains all resolved values
-$pubNet = if ($Network -ieq "testnet") { "TESTNET" } else { "MAINNET" }
 $pass   = if ($Network -ieq "testnet") { "Test SDF Network ; September 2015" } else { "Public Global Stellar Network ; September 2015" }
 $rpcUrl = if ($Network -ieq "testnet") { "https://soroban-testnet.stellar.org" } else { "https://soroban-rpc.stellar.org" }
 $hzUrl  = if ($Network -ieq "testnet") { "https://horizon-testnet.stellar.org" } else { "https://horizon.stellar.org" }
+$friendUrl = if ($Network -ieq "testnet") { "https://friendbot.stellar.org" } else { "" }
 
 $envPairs = @{
-  "NETWORK"     = $Network
   "ADMIN_ALIAS" = $AdminAlias
-  "ADMIN_ADDR"  = $AdminAddr
+  "PUBLIC_CONTRACT_ADDRESS" = $ContractId
   "TOKEN_ID"    = $TokenId
-  "CONTRACT_ID" = $ContractId
-  "PUBLIC_STELLAR_NETWORK" = $pubNet
-  "PUBLIC_STELLAR_NETWORK_PASSPHRASE" = $pass
-  "PUBLIC_STELLAR_RPC_URL" = $rpcUrl
-  "PUBLIC_STELLAR_HORIZON_URL" = $hzUrl
+  "ADMIN_ADDR"  = $AdminAddr
+  "NETWORK"     = $Network
+  "STELLAR_NETWORK" = $Network
+  "HORIZON_URL" = $hzUrl
+  "HORIZON_NETWORK_PASSPHRASE" = $pass
+  "SOROBAN_RPC_URL" = $rpcUrl
+  "STELLAR_FRIENDBOT_URL" = $friendUrl
   }
 if ($TokenAsset) { $envPairs["TOKEN_ASSET"] = $TokenAsset }
 Update-EnvFile -path $EnvFile -pairs $envPairs
-Remove-EnvKeys -path $EnvFile -keys @("WASM_PATH")
-Write-Host "Updated $EnvFile with NETWORK, ADMIN_ALIAS, ADMIN_ADDR, TOKEN_ID, CONTRACT_ID, and public endpoints" -ForegroundColor Green
+Remove-EnvKeys -path $EnvFile -keys @("WASM_PATH", "CONTRACT_ID")
+Write-Host "Updated $EnvFile with NETWORK, STELLAR_NETWORK, HORIZON_URL, HORIZON_NETWORK_PASSPHRASE, SOROBAN_RPC_URL, STELLAR_FRIENDBOT_URL, ADMIN_ALIAS, ADMIN_ADDR, TOKEN_ID, PUBLIC_CONTRACT_ADDRESS" -ForegroundColor Green
 
 Write-Host "Done." -ForegroundColor Green
