@@ -132,7 +132,7 @@ $deployOut = (stellar contract deploy `
   --token $TokenId | Out-String).Trim()
 
 $ContractId = $deployOut
-Write-Host "PUBLIC_CONTRACT_ADDRESS = $ContractId" -ForegroundColor Green
+Write-Host "CONTRACT_ADDRESS = $ContractId" -ForegroundColor Green
 
 # Ensure .env contains all resolved values
 $pass   = if ($Network -ieq "testnet") { "Test SDF Network ; September 2015" } else { "Public Global Stellar Network ; September 2015" }
@@ -142,7 +142,7 @@ $friendUrl = if ($Network -ieq "testnet") { "https://friendbot.stellar.org" } el
 
 $envPairs = @{
   "ADMIN_ALIAS" = $AdminAlias
-  "PUBLIC_CONTRACT_ADDRESS" = $ContractId
+  "CONTRACT_ADDRESS" = $ContractId
   "TOKEN_ID"    = $TokenId
   "ADMIN_ADDR"  = $AdminAddr
   "NETWORK"     = $Network
@@ -155,6 +155,6 @@ $envPairs = @{
 if ($TokenAsset) { $envPairs["TOKEN_ASSET"] = $TokenAsset }
 Update-EnvFile -path $EnvFile -pairs $envPairs
 Remove-EnvKeys -path $EnvFile -keys @("WASM_PATH", "CONTRACT_ID")
-Write-Host "Updated $EnvFile with NETWORK, STELLAR_NETWORK, HORIZON_URL, HORIZON_NETWORK_PASSPHRASE, SOROBAN_RPC_URL, STELLAR_FRIENDBOT_URL, ADMIN_ALIAS, ADMIN_ADDR, TOKEN_ID, PUBLIC_CONTRACT_ADDRESS" -ForegroundColor Green
+Write-Host "Updated $EnvFile with NETWORK, STELLAR_NETWORK, HORIZON_URL, HORIZON_NETWORK_PASSPHRASE, SOROBAN_RPC_URL, STELLAR_FRIENDBOT_URL, ADMIN_ALIAS, ADMIN_ADDR, TOKEN_ID, CONTRACT_ADDRESS" -ForegroundColor Green
 
 Write-Host "Done." -ForegroundColor Green

@@ -3,13 +3,14 @@ import { CreateCarForm } from "../components/CreateCarForm";
 import StellarExpertLink from "../components/StellarExpertLink";
 import useModal from "../hooks/useModal";
 import { ICar } from "../interfaces/car";
-import { CarStatus } from "../interfaces/car-status";
-import { IRentACarContract } from "../interfaces/contract";
+import { CarStatus } from "../interfaces/car-status.ts";
+import { IRentACarContract } from "../interfaces/contract.ts";
 import { CreateCar } from "../interfaces/create-car";
 import { UserRole } from "../interfaces/user-role";
 import { useStellarAccounts } from "../providers/Provider";
-import { stellarService } from "../services/stellar.service";
-import { walletService } from "../services/wallet.service";
+import { stellarService } from "../services/stellar.service.ts";
+import { walletService } from "../services/wallet.service.ts";
+
 import { ONE_XLM_IN_STROOPS } from "../utils/xlm-in-stroops";
 
 export default function Dashboard() {
