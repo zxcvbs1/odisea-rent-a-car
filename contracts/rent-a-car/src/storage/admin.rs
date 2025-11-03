@@ -1,5 +1,9 @@
+use super::types::{
+    balance::Balance,
+    fee::{FeeConfig, FeeMode},
+    storage::DataKey,
+};
 use soroban_sdk::{Address, Env};
-use super::types::{storage::DataKey, fee::{FeeConfig, FeeMode}, balance::Balance};
 
 pub(crate) fn has_admin(env: &Env) -> bool {
     env.storage().instance().has(&DataKey::Admin)
@@ -22,11 +26,18 @@ pub(crate) fn read_fee_config(env: &Env) -> FeeConfig {
     if has_admin_fee(env) {
         env.storage().instance().get(&DataKey::AdminFee).unwrap()
     } else {
-        FeeConfig { mode: FeeMode::Flat(0) }
+        FeeConfig {
+            mode: FeeMode::Flat(0),
+        }
     }
 }
 pub(crate) fn write_admin_fee(env: &Env, fee: i128) {
-    write_fee_config(env, &FeeConfig { mode: FeeMode::Flat(fee) });
+    write_fee_config(
+        env,
+        &FeeConfig {
+            mode: FeeMode::Flat(fee),
+        },
+    );
 }
 pub(crate) fn read_admin_fee(env: &Env) -> i128 {
     let cfg = read_fee_config(env);
@@ -40,11 +51,17 @@ pub(crate) fn has_admin_balance(env: &Env) -> bool {
     env.storage().instance().has(&DataKey::AdminBalance)
 }
 pub(crate) fn write_admin_balance(env: &Env, value: i128) {
-    env.storage().instance().set(&DataKey::AdminBalance, &Balance(value));
+    env.storage()
+        .instance()
+        .set(&DataKey::AdminBalance, &Balance(value));
 }
 pub(crate) fn read_admin_balance(env: &Env) -> i128 {
     if has_admin_balance(env) {
-        let b: Balance = env.storage().instance().get(&DataKey::AdminBalance).unwrap();
+        let b: Balance = env
+            .storage()
+            .instance()
+            .get(&DataKey::AdminBalance)
+            .unwrap();
         b.0
     } else {
         0_i128

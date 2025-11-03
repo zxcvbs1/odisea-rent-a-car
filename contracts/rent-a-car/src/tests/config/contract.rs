@@ -1,4 +1,11 @@
-use soroban_sdk::{testutils::Address as _, token, Address, Env};
+use soroban_sdk::{
+    testutils::{Address as _, MockAuth, MockAuthInvoke},
+    token,
+    Address,
+    Env,
+    IntoVal,
+};
+
 use crate::{contract::RentACarContractClient, RentACarContract};
 use crate::tests::config::utils::create_token_contract;
 
@@ -28,4 +35,50 @@ impl<'a> ContractTest<'a> {
             token: (token_client, token_admin, token_issuer),
         }
     }
+}
+
+
+#[test]
+#[should_panic(expected = "Error(Auth, InvalidAction)")]
+pub fn test_owner_no_puede_remove_car() {
+    let ContractTest { env, contract, .. } = ContractTest::setup();
+
+    let owner = Address::generate(&env);
+    contract.add_car(&owner, &1000);
+
+    // Firma el owner, pero remove_car exige firma del admin → Auth error
+    contract
+        .mock_auths(&[MockAuth {
+            address: &owner,
+            invoke: &MockAuthInvoke {
+                contract: &contract.address,
+                fn_name: "remove_car",
+                args: (owner.clone(),).into_val(&env),
+                sub_invokes: &[],
+            },
+        }])
+        .remove_car(&owner);
+}
+
+#[test]
+#[should_panic(expected = "Error(Auth, InvalidAction)")]
+pub fn test_renter_no_puede_remove_car() {
+    let ContractTest { env, contract, .. } = ContractTest::setup();
+
+    let owner = Address::generate(&env);
+    let renter = Address::generate(&env);
+    contract.add_car(&owner, &1000);
+
+    // Firma el renter, pero remove_car exige firma del admin → Auth error
+    contract
+        .mock_auths(&[MockAuth {
+            address: &renter,
+            invoke: &MockAuthInvoke {
+                contract: &contract.address,
+                fn_name: "remove_car",
+                args: (owner.clone(),).into_val(&env),
+                sub_invokes: &[],
+            },
+        }])
+        .remove_car(&owner);
 }

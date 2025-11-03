@@ -20,4 +20,7 @@ pub enum Error {
     UnderFlowError = 13,
     CarStillRented = 14,
     CarNotRented = 15,
+    OwnerBalancePending = 16,
+
+    
 }
