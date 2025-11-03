@@ -4,6 +4,8 @@ use super::types::{
     storage::DataKey,
 };
 use soroban_sdk::{Address, Env};
+use crate::storage::types::error::Error;
+
 
 pub(crate) fn has_admin(env: &Env) -> bool {
     env.storage().instance().has(&DataKey::Admin)
@@ -67,9 +69,11 @@ pub(crate) fn read_admin_balance(env: &Env) -> i128 {
         0_i128
     }
 }
-pub(crate) fn add_admin_balance(env: &Env, amount: i128) {
+pub(crate) fn add_admin_balance(env: &Env, amount: i128) -> Result<(), Error> {
     let current = read_admin_balance(env);
-    write_admin_balance(env, current + amount);
+    let new = current.checked_add(amount).ok_or(Error::OverflowError)?;
+    write_admin_balance(env, new);
+    Ok(())
 }
 pub(crate) fn take_admin_balance(env: &Env) -> i128 {
     let amount = read_admin_balance(env);

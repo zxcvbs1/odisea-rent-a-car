@@ -148,15 +148,17 @@ impl RentACarContractTrait for RentACarContract {
             fee_applied: fee,
             deposit_total, // base + fee
         };
-
+        let prev_admin_bal = read_admin_balance(env);
         if fee > 0 {
-            add_admin_balance(env, fee);
-            let admin = read_admin(env);
-            events::withdraw::admin_withdraw_ready(env, admin, read_admin_balance(env));
-
-
+            add_admin_balance(env, fee)?; // usando checked_add internamente
+            if prev_admin_bal == 0 {
+                let admin = read_admin(env);
+                let new_bal = prev_admin_bal.checked_add(fee).ok_or(Error::OverflowError)?;
+                events::withdraw::admin_withdraw_ready(env, admin, new_bal);
+            }
         }
-        add_owner_balance(env, &owner, amount);
+
+        add_owner_balance(env, &owner, amount)?;
 
         write_car(env, &owner, &car);
         write_rental(env, &renter, &owner, &rental);

@@ -1,5 +1,5 @@
 use soroban_sdk::{Address, Env};
-use crate::storage::types::{storage::DataKey, balance::Balance};
+use crate::storage::types::{storage::DataKey, balance::Balance,error::Error};
 
 pub(crate) fn has_owner_balance(env: &Env, owner: &Address) -> bool {
     env.storage().instance().has(&DataKey::OwnerBalance(owner.clone()))
@@ -18,13 +18,15 @@ pub(crate) fn write_owner_balance(env: &Env, owner: &Address, value: i128) {
 
 
 
-pub(crate) fn add_owner_balance(env: &Env, owner: &Address, amount: i128) {
-    if has_owner_balance(env, owner) {
-        let current = read_owner_balance(env, owner);
-        write_owner_balance(env, owner, current + amount);
+pub(crate) fn add_owner_balance(env: &Env, owner: &Address, amount: i128) -> Result<(), Error> {
+    let current = if has_owner_balance(env, owner) {
+        read_owner_balance(env, owner)
     } else {
-        write_owner_balance(env, owner, amount);
-    }
+        0_i128
+    };
+    let new = current.checked_add(amount).ok_or(Error::OverflowError)?;
+    write_owner_balance(env, owner, new);
+    Ok(())
 }
 
 
